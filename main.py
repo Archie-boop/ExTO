@@ -754,7 +754,8 @@ class DMconnectClient:
                 pm = u"/pm {0} {1}".format(self.current_contact, last_msg)
                 self.send_data(pm)
                 
-                self.show_message(u"Я → {0}: {1}".format(self.current_contact, last_msg),
+                display_name = self.current_username if self.current_username else "Me"
+                self.show_message(u"{0} → {1}: {2}".format(display_name, self.current_contact, last_msg),
                                   self.current_contact)
                 
                 self.remove_error_message()
@@ -833,7 +834,8 @@ class DMconnectClient:
         current_time = datetime.now().strftime("%H:%M")
         
         if is_my_message:
-            formatted = u"[{0}] <Я> {1}".format(current_time, msg)
+            display_name = self.current_username if self.current_username else "Me"
+            formatted = u"[{0}] <{1}> {2}".format(current_time, display_name, msg)
         else:
             formatted = u"[{0}] <{1}> {2}".format(current_time, contact_name, msg)
         
@@ -971,12 +973,24 @@ class DMconnectClient:
             self.chat_area.config(state="disabled")
 
     def show_formatted_private_message(self, msg, contact):
-        is_my_message = msg.startswith(u"Я →")
+        is_my_message = u" → " in msg and u": " in msg
         is_error = msg.startswith(u"Error:") or msg.startswith(u"Erorr:")
         
         if is_my_message:
-            text_part = msg.split(u": ", 1)[1] if u": " in msg else msg
-            formatted = self.format_private_message(text_part, True)
+            parts = msg.split(u" → ", 1)
+            if len(parts) == 2:
+                sender_name = parts[0]
+                text_with_recipient = parts[1]
+                if u": " in text_with_recipient:
+                    text_part = text_with_recipient.split(u": ", 1)[1]
+                else:
+                    text_part = text_with_recipient
+                
+                current_time = datetime.now().strftime("%H:%M")
+                formatted = u"[{0}] <{1}> {2}".format(current_time, sender_name, text_part)
+            else:
+                text_part = msg.split(u": ", 1)[1] if u": " in msg else msg
+                formatted = self.format_private_message(text_part, True)
         elif is_error:
             current_time = datetime.now().strftime("%H:%M")
             formatted = u"[{0}] {1}".format(current_time, msg)
@@ -1389,7 +1403,8 @@ class DMconnectClient:
                             
                             self.last_messages[target_name] = message_text
                             
-                            self.show_message(u"Я → {0}: {1}".format(target_name, message_text),
+                            display_name = self.current_username if self.current_username else "Me"
+                            self.show_message(u"{0} → {1}: {2}".format(display_name, target_name, message_text),
                                               target_name)
                             
                             self.entry.focus_set()
@@ -1409,7 +1424,8 @@ class DMconnectClient:
                     
                     self.last_messages[contact] = msg
                     
-                    self.show_message(u"Я → {0}: {1}".format(contact, msg),
+                    display_name = self.current_username if self.current_username else "Me"
+                    self.show_message(u"{0} → {1}: {2}".format(display_name, contact, msg),
                                       contact)
             except Exception as e:
                 try:
