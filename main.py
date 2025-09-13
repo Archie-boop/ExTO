@@ -740,7 +740,7 @@ class DMconnectClient:
             self.friend_list.activate(index)
 
             contact_name = self.friend_list.get(index)
-            gself.current_contact = contact_name
+            self.current_contact = contact_name
         
         try:
             self.contact_menu.tk_popup(event.x_root, event.y_root)
