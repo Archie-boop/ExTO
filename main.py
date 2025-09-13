@@ -120,7 +120,6 @@ class DMconnectClient:
         self.chat_area.tag_configure("retry_link", foreground="blue", underline=True)
         self.chat_area.tag_configure("clickable_name", foreground="red")
         
-        self.unread_counts = {}
         
 
 
@@ -530,6 +529,14 @@ class DMconnectClient:
         self.current_contact = contact_name
         self.contact_label.config(text=contact_name)
         
+        for i in range(self.friend_list.size()):
+            item = self.friend_list.get(i)
+            if item == contact_name:
+                self.friend_list.selection_clear(0, "end")
+                self.friend_list.selection_set(i)
+                self.friend_list.activate(i)
+                break
+        
         self.chat_area.config(state="normal")
         self.chat_area.delete("1.0", "end")
         
@@ -574,10 +581,6 @@ class DMconnectClient:
             
             self.chat_area.config(state="disabled")
 
-    def get_contact_display_name(self, contact):
-        if contact in self.unread_counts and self.unread_counts[contact] > 0:
-            return u"{0} [{1}]".format(contact, self.unread_counts[contact])
-        return contact
 
     def filter_contacts(self, event=None):
         search_text = self.search_entry.get().lower().strip()
@@ -589,13 +592,11 @@ class DMconnectClient:
         
         if not search_text:
             for contact in self.original_contacts:
-                display_name = self.get_contact_display_name(contact)
-                self.friend_list.insert("end", display_name)
+                self.friend_list.insert("end", contact)
         else:
             for contact in self.original_contacts:
                 if search_text in contact.lower():
-                    display_name = self.get_contact_display_name(contact)
-                    self.friend_list.insert("end", display_name)
+                    self.friend_list.insert("end", contact)
 
     def add_friend(self):
         name = self.search_entry.get().strip()
@@ -673,19 +674,14 @@ class DMconnectClient:
         if selection:
             idx = selection[0]
             selected = self.friend_list.get(idx)
-            name = selected
-            if u" [" in selected and selected.endswith(u"]"):
-                name = selected.split(u" [")[0]
-            if name != "Server":
-                if tkMessageBox.askyesno("Remove Friend", u"Are you sure you want to remove '{0}'?".format(name)):
+            if selected != "Server":
+                if tkMessageBox.askyesno("Remove Friend", u"Are you sure you want to remove '{0}'?".format(selected)):
                     self.friend_list.delete(idx)
-                    if name in self.original_contacts:
-                        self.original_contacts.remove(name)
-                        if name in self.unread_counts:
-                            del self.unread_counts[name]
+                    if selected in self.original_contacts:
+                        self.original_contacts.remove(selected)
                         self.save_contacts()
                     
-                    if self.current_contact == name:
+                    if self.current_contact == selected:
                         for i in range(self.friend_list.size()):
                             item = self.friend_list.get(i)
                             if item == "Server":
@@ -708,15 +704,9 @@ class DMconnectClient:
         if selection:
             idx = selection[0]
             selected = self.friend_list.get(idx)
-            name = selected
-            if u" [" in selected and selected.endswith(u"]"):
-                name = selected.split(u" [")[0]
-            self.current_contact = name
-            self.contact_label.config(text=name)
+            self.current_contact = selected
+            self.contact_label.config(text=selected)
             
-            if name in self.unread_counts:
-                self.unread_counts[name] = 0
-                self.filter_contacts()
             
             self.chat_area.config(state="normal")
             self.chat_area.delete("1.0", "end")
@@ -776,18 +766,13 @@ class DMconnectClient:
         if selection:
             idx = selection[0]
             selected = self.friend_list.get(idx)
-            name = selected
-            if u" [" in selected and selected.endswith(u"]"):
-                name = selected.split(u" [")[0]
-            if name != "Server": 
+            if selected != "Server": 
                 self.friend_list.delete(idx)
-                if name in self.original_contacts:
-                    self.original_contacts.remove(name)
-                    if name in self.unread_counts:
-                        del self.unread_counts[name]
+                if selected in self.original_contacts:
+                    self.original_contacts.remove(selected)
                     self.save_contacts()
                 
-                if self.current_contact == name:
+                if self.current_contact == selected:
                     for i in range(self.friend_list.size()):
                         item = self.friend_list.get(i)
                         if item == "Server":
@@ -807,16 +792,8 @@ class DMconnectClient:
                 except Exception:
                     pass
             
-            contact_name = selected
-            if u" [" in selected and selected.endswith(u"]"):
-                contact_name = selected.split(u" [")[0]
-            
-            self.current_contact = contact_name
+            self.current_contact = selected
             self.contact_label.config(text=self.current_contact)
-            
-            if contact_name in self.unread_counts:
-                self.unread_counts[contact_name] = 0
-                self.filter_contacts()
 
             self.chat_area.config(state="normal")
             self.chat_area.delete("1.0", "end")
@@ -1194,14 +1171,16 @@ class DMconnectClient:
                 self.chat_area.tag_add("their_name",
                                     "{0}+{1}c".format(start_pos, name_start),
                                     "{0}+{1}c".format(start_pos, name_end))
-                self.chat_area.tag_add("clickable_name",
+                                    
+                unique_tag = "clickable_name_" + str(id(name))
+                self.chat_area.tag_add(unique_tag,
                                     "{0}+{1}c".format(start_pos, name_start),
                                     "{0}+{1}c".format(start_pos, name_end))
-                self.chat_area.tag_bind("clickable_name", "<Button-1>", 
+                self.chat_area.tag_bind(unique_tag, "<Button-1>", 
                                       lambda e, contact_name=name: self.open_contact_dialog(contact_name))
-                self.chat_area.tag_bind("clickable_name", "<Enter>", 
+                self.chat_area.tag_bind(unique_tag, "<Enter>", 
                                       lambda e: self.chat_area.config(cursor="hand2"))
-                self.chat_area.tag_bind("clickable_name", "<Leave>", 
+                self.chat_area.tag_bind(unique_tag, "<Leave>", 
                                       lambda e: self.chat_area.config(cursor="xterm"))
             text_start = name_end
             self.chat_area.tag_add("message_text",
@@ -1379,10 +1358,7 @@ class DMconnectClient:
                             
                             for i in range(self.friend_list.size()):
                                 item = self.friend_list.get(i)
-                                item_name = item
-                                if u" [" in item and item.endswith(u"]"):
-                                    item_name = item.split(u" [")[0]
-                                if item_name == target_name:
+                                if item == target_name:
                                     self.friend_list.selection_clear(0, "end")
                                     self.friend_list.selection_set(i)
                                     break
@@ -1579,10 +1555,7 @@ class DMconnectClient:
                     
                     for i in range(self.friend_list.size()):
                         item = self.friend_list.get(i)
-                        item_name = item
-                        if u" [" in item and item.endswith(u"]"):
-                            item_name = item.split(u" [")[0]
-                        if item_name == name:
+                        if item == name:
                             self.friend_list.selection_clear(0, "end")
                             self.friend_list.selection_set(i)
                             break
