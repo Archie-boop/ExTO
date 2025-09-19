@@ -1966,27 +1966,24 @@ class DMconnectClient:
         dialog.transient(self.master)
         dialog.grab_set()
 
-        bg_color = "#c0c0c0" 
-        dialog.configure(bg=bg_color)
-
-        header_frame = tk.Frame(dialog, bg=bg_color)
+        header_frame = tk.Frame(dialog)
         header_frame.pack(fill="x", padx=10, pady=(8, 0))
 
-        title_label = tk.Label(header_frame, text="ExTO 0.0.1a", bg=bg_color,
+        title_label = tk.Label(header_frame, text="ExTO 0.0.1a",
                             font=("MS Sans Serif", 10, "bold"))
         title_label.pack(side="left")
 
-        main_frame = tk.Frame(dialog, bg=bg_color)
+        main_frame = tk.Frame(dialog)
         main_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
         copyright_label = tk.Label(main_frame,
                                 text="© guester (AKA Archie-Boop)",
-                                bg=bg_color, font=("MS Sans Serif", 9))
+                                font=("MS Sans Serif", 9))
         copyright_label.pack(anchor="w", pady=(0, 5))
 
         def make_link(parent, text, url):
             lbl = tk.Label(parent, text=text, fg="blue", cursor="hand2",
-                        bg=bg_color, font=("MS Sans Serif", 9, "underline"))
+                        font=("MS Sans Serif", 9, "underline"))
             lbl.pack(anchor="w")
             lbl.bind("<Button-1>", lambda e: webbrowser.open(url))
             return lbl
@@ -1996,11 +1993,11 @@ class DMconnectClient:
         make_link(main_frame, "Protocol Documentation", "http://dmconnectspec.w10.site/")
 
         lic_label = tk.Label(main_frame, text="\nThanks to BitByByte for creating DMconnect!",
-                            bg=bg_color, font=("MS Sans Serif", 9))
+                            font=("MS Sans Serif", 9))
         lic_label.pack(anchor="w")
 
 
-        bottom_frame = tk.Frame(dialog, bg=bg_color)
+        bottom_frame = tk.Frame(dialog)
         bottom_frame.pack(fill="x", side="bottom", pady=5, padx=5)
 
         close_button = tk.Button(bottom_frame, text="OK", width=10, command=dialog.destroy, pady=0)
