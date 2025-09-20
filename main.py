@@ -951,7 +951,7 @@ class DMconnectClient:
 
     def show_formatted_private_message(self, msg, contact):
         is_my_message = u" → " in msg and u": " in msg
-        is_error = msg.startswith(u"Error:") or msg.startswith(u"Erorr:")
+        is_error = msg.startswith(u"Error:") or msg.startswith(u"Error:")
         
         if is_my_message:
             parts = msg.split(u" → ", 1)
@@ -1093,7 +1093,7 @@ class DMconnectClient:
         current_time = datetime.now().strftime("%H:%M")
 
         is_special = msg.startswith(u"***")
-        is_error = msg.startswith(u"Error:") or msg.startswith(u"Erorr:")
+        is_error = msg.startswith(u"Error:") or msg.startswith(u"Error:")
         is_usage = msg.startswith(u"Usage:")
 
         name = None
@@ -1485,6 +1485,73 @@ class DMconnectClient:
         self.master.after(100, self.poll_server)
 
     def parse_message(self, msg):
+        if "(Private)" in msg and msg.startswith("(Private)"):
+            try:
+                if isinstance(msg, str):
+                    try:
+                        msg = msg.decode("utf-8")
+                    except Exception:
+                        pass
+                msg = msg.replace("*Ping!*", "").strip()
+                
+                prefix, text = msg.split(":", 1)
+                name = prefix.replace("(Private)", "").strip()
+                if isinstance(name, str):
+                    try:
+                        name = name.decode('utf-8')
+                    except Exception:
+                        pass
+                text = text.strip()
+
+                display = u"[PM от {0}] {1}".format(name, text)
+
+                names_u = []
+                for c in self.original_contacts:
+                    if isinstance(c, str):
+                        try:
+                            cu = c.decode('utf-8')
+                        except Exception:
+                            cu = c
+                    else:
+                        cu = c
+                    names_u.append(cu)
+
+                if name not in names_u:
+                    self.original_contacts.append(name)
+                    try:
+                        self.filter_contacts()
+                    except Exception:
+                        self.friend_list.insert("end", name)
+                    self.save_contacts()
+
+                self.current_contact = name
+                self.contact_label.config(text=name)
+                
+                for i in range(self.friend_list.size()):
+                    item = self.friend_list.get(i)
+                    if item == name:
+                        self.friend_list.selection_clear(0, "end")
+                        self.friend_list.selection_set(i)
+                        break
+                
+                self.chat_area.config(state="normal")
+                self.chat_area.delete("1.0", "end")
+                
+                for line in self.histories.get(self.current_contact, []):
+                    if self.current_contact != "Server":
+                        self.show_formatted_private_message(line, self.current_contact)
+                    else:
+                        self.show_formatted_server_message(line)
+                
+                self.chat_area.config(state="disabled")
+                self.chat_area.see("end")
+                
+                self.show_message(display, name)
+                return
+            except Exception:
+                self.show_message(msg, "Server")
+                return
+
         try:
             lines = msg.splitlines()
         except Exception:
