@@ -1454,7 +1454,7 @@ class DMconnectClient:
                     try:
                         while True:
                             try:
-                                data = self.client_socket.recv(1024)
+                                data = self.client_socket.recv(32768)
                             except socket.error:
                                 break
                             if not data:
@@ -1979,12 +1979,12 @@ class DMconnectClient:
                     try:
                         reg_socket.settimeout(5.0)
                         
-                        initial_msg = reg_socket.recv(1024).decode("utf-8").strip()
+                        initial_msg = reg_socket.recv(32768).decode("utf-8").strip()
                         
                         cmd = u"/register {0} {1}".format(login, pwd)
                         reg_socket.send(cmd.encode("utf-8"))
                         
-                        response = reg_socket.recv(1024).decode("utf-8").strip()
+                        response = reg_socket.recv(32768).decode("utf-8").strip()
                         
                         if "Registration successful" in response:
                             tkMessageBox.showinfo(u"Registration", u"Registration successful! Please log in.")
