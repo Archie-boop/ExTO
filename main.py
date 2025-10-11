@@ -2036,7 +2036,7 @@ class DMconnectClient:
         header_frame = tk.Frame(dialog)
         header_frame.pack(fill="x", padx=10, pady=(8, 0))
 
-        title_label = tk.Label(header_frame, text="ExTO 0.0.1a",
+        title_label = tk.Label(header_frame, text="ExTO 0.0.2a",
                             font=("MS Sans Serif", 10, "bold"))
         title_label.pack(side="left")
 
