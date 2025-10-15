@@ -540,7 +540,7 @@ class DMconnectClient:
         self.chat_area.config(state="normal")
         self.chat_area.delete("1.0", "end")
         
-        for line in self.histories.get(self.current_contact, []):
+        for line in self.histories.get(self.current_contact, [])[-30:]:
             if self.current_contact != "Server":
                 self.show_formatted_private_message(line, self.current_contact)
             else:
@@ -711,7 +711,7 @@ class DMconnectClient:
             self.chat_area.config(state="normal")
             self.chat_area.delete("1.0", "end")
             
-            for line in self.histories.get(self.current_contact, []):
+            for line in self.histories.get(self.current_contact, [])[-30:]:
                 if self.current_contact != "Server":
                     self.show_formatted_private_message(line, self.current_contact)
                 else:
@@ -798,7 +798,7 @@ class DMconnectClient:
             self.chat_area.config(state="normal")
             self.chat_area.delete("1.0", "end")
             
-            for line in self.histories.get(self.current_contact, []):
+            for line in self.histories.get(self.current_contact, [])[-30:]:
                 if self.current_contact != "Server":
                     self.show_formatted_private_message(line, self.current_contact)
                 else:
