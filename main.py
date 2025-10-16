@@ -855,7 +855,7 @@ class DMconnectClient:
                                 "{0}+{1}c".format(start_pos, time_end))
             
             error_start = time_end
-            error_end = error_start + len(error_text)
+            error_end = error_start + len(error_text) + 1
             self.chat_area.tag_add("error_message",
                                 "{0}+{1}c".format(start_pos, error_start),
                                 "{0}+{1}c".format(start_pos, error_end))
