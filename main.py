@@ -615,6 +615,7 @@ class DMconnectClient:
     def add_friend_from_menu(self):
         dialog = tk.Toplevel(self.master)
         dialog.title("Add to contacts")
+        dialog.iconbitmap("icon.ico")
         dialog.resizable(False, False)
         dialog.transient(self.master)
         dialog.grab_set()
@@ -1648,9 +1649,10 @@ class DMconnectClient:
             elif line.startswith("Private message sent to ") and line.endswith("."):
                 i += 1
                 continue
-            elif line.startswith("Failed to send private message to ") and line.endswith("."):
+            elif line.startswith("Failed to send private message to "):
                 try:
-                    target_name = line.replace("Failed to send private message to ", "").replace(".", "").strip()
+                    target_name = line[len("Failed to send private message to "):].rstrip('.').strip()
+                    
                     if isinstance(target_name, str):
                         try:
                             target_name = target_name.decode('utf-8')
